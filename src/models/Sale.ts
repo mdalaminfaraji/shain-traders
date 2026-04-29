@@ -4,6 +4,7 @@ const SaleItemSchema = new Schema({
   productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
   quantity: { type: Number, required: true },
   rate: { type: Number, required: true },
+  laborCost: { type: Number, default: 0 },
   total: { type: Number, required: true },
 });
 

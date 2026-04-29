@@ -31,19 +31,27 @@ export default function NewSalePage() {
   }, []);
 
   const addToCart = (product: any) => {
+    const isRod = product.category === "Rod";
+    const laborCostPerUnit = isRod ? 0.2 : 0; // 0.2 Taka per KG (20% of weight)
+    const finalRate = product.price + laborCostPerUnit;
+
     const existing = cart.find((item: any) => item.productId === product._id);
     if (existing) {
       setCart(cart.map((item: any) =>
-        item.productId === product._id ? { ...item, quantity: item.quantity + 1, total: (item.quantity + 1) * item.rate } : item
+        item.productId === product._id 
+          ? { ...item, quantity: item.quantity + 1, total: (item.quantity + 1) * finalRate } 
+          : item
       ));
     } else {
       setCart([...cart, {
         productId: product._id,
         name: product.name,
         brand: product.brand,
+        category: product.category,
         quantity: 1,
         rate: product.price,
-        total: product.price
+        laborCost: laborCostPerUnit,
+        total: finalRate
       }]);
     }
   };
@@ -141,13 +149,20 @@ export default function NewSalePage() {
                           onChange={(e) => {
                             const val = Number(e.target.value);
                             setCart(cart.map((i: any) =>
-                              i.productId === item.productId ? { ...i, quantity: val, total: val * i.rate } : i
+                              i.productId === item.productId 
+                                ? { ...i, quantity: val, total: val * (i.rate + (i.laborCost || 0)) } 
+                                : i
                             ));
                           }}
                           className="w-16 bg-background border border-border rounded px-2 py-1 text-sm"
                         />
                       </td>
-                      <td className="py-4 font-bold">৳ {item.total}</td>
+                      <td className="py-4 font-bold">
+                        <p>৳ {item.total}</p>
+                        {item.laborCost > 0 && (
+                          <p className="text-[10px] text-emerald-400 font-medium">Incl. ৳ {item.laborCost * item.quantity} labor</p>
+                        )}
+                      </td>
                       <td className="py-4 text-right">
                         <button onClick={() => removeFromCart(item.productId)} className="text-red-400 p-2 hover:bg-red-500/10 rounded">
                           <Trash2 className="w-4 h-4" />
@@ -183,11 +198,17 @@ export default function NewSalePage() {
 
               <div className="space-y-2 py-4 border-t border-b border-border">
                 <div className="flex justify-between text-muted">
-                  <span>Subtotal</span>
-                  <span>৳ {totalAmount}</span>
+                  <span>Product Subtotal</span>
+                  <span>৳ {cart.reduce((acc, i: any) => acc + (i.rate * i.quantity), 0)}</span>
                 </div>
-                <div className="flex justify-between text-xl font-bold">
-                  <span>Total</span>
+                {cart.some((i: any) => i.laborCost > 0) && (
+                  <div className="flex justify-between text-emerald-400 text-sm">
+                    <span>Labor Cost (0.2/kg)</span>
+                    <span>৳ {cart.reduce((acc, i: any) => acc + ((i.laborCost || 0) * i.quantity), 0).toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-xl font-bold pt-2">
+                  <span>Total Amount</span>
                   <span>৳ {totalAmount}</span>
                 </div>
               </div>

@@ -84,12 +84,13 @@ export default function CustomerLedgerPage({ params }: { params: Promise<{ id: s
               <th className="p-4 font-medium">Description</th>
               <th className="p-4 font-medium text-right">Debit (Purchases)</th>
               <th className="p-4 font-medium text-right">Credit (Payments)</th>
-              <th className="p-4 pr-6 font-medium text-right">Running Balance</th>
+              <th className="p-4 font-medium text-right">Running Balance</th>
+              <th className="p-4 pr-6 font-medium text-right no-print">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {!data || !Array.isArray(ledger) || ledger.length === 0 ? (
-              <tr><td colSpan={5} className="p-8 text-center text-muted italic">No transactions recorded yet.</td></tr>
+              <tr><td colSpan={6} className="p-8 text-center text-muted italic">No transactions recorded yet.</td></tr>
             ) : (() => {
               let runningBalance = 0;
               return ledger.map((entry: any) => {
@@ -120,8 +121,16 @@ export default function CustomerLedgerPage({ params }: { params: Promise<{ id: s
                     <td className="p-4 text-right font-medium text-emerald-400">
                       {entry.type === "Payment" ? `৳ ${entry.amount.toLocaleString()}` : (entry.paid > 0 ? `৳ ${entry.paid.toLocaleString()}` : "-")}
                     </td>
-                    <td className="p-4 pr-6 text-right font-bold">
+                    <td className="p-4 text-right font-bold">
                       ৳ {runningBalance.toLocaleString()}
+                    </td>
+                    <td className="p-4 pr-6 text-right no-print">
+                      <Link 
+                        href={entry.type === "Sale" ? `/sales/${entry._id}/print` : `/payments/${entry._id}/print`}
+                        className="inline-flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-lg border border-white/10 transition-all"
+                      >
+                        <Printer className="w-3.5 h-3.5" /> Print
+                      </Link>
                     </td>
                   </tr>
                 );
