@@ -7,6 +7,7 @@ import Link from "next/link";
 export default function CustomersPage() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
@@ -76,6 +77,11 @@ export default function CustomersPage() {
     }
   }
 
+  const filteredCustomers = customers.filter((customer: any) => 
+    customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    customer.phone.includes(searchQuery)
+  );
+
   return (
     <div className="p-8">
       <header className="flex justify-between items-center mb-8">
@@ -98,6 +104,8 @@ export default function CustomersPage() {
           <input
             type="text"
             placeholder="Search by name or phone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-card border border-border rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
           />
         </div>
@@ -107,10 +115,10 @@ export default function CustomersPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
           <p className="text-muted col-span-full text-center py-12">Loading customers...</p>
-        ) : !Array.isArray(customers) || customers.length === 0 ? (
+        ) : filteredCustomers.length === 0 ? (
           <p className="text-muted col-span-full text-center py-12">No customers found.</p>
         ) : (
-          customers.map((customer: any) => (
+          filteredCustomers.map((customer: any) => (
             <Link
               key={customer._id}
               href={`/customers/${customer._id}`}

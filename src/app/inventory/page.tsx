@@ -6,6 +6,7 @@ import { Plus, Package, MoreHorizontal, Search } from "lucide-react";
 export default function InventoryPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
@@ -75,6 +76,12 @@ export default function InventoryPage() {
     }
   }
 
+  const filteredProducts = products.filter((product: any) => 
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="p-8">
       <header className="flex justify-between items-center mb-8">
@@ -97,6 +104,8 @@ export default function InventoryPage() {
           <input
             type="text"
             placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-card border border-border rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
           />
         </div>
@@ -118,10 +127,10 @@ export default function InventoryPage() {
           <tbody className="divide-y divide-border">
             {loading ? (
               <tr><td colSpan={6} className="p-8 text-center text-muted">Loading inventory...</td></tr>
-            ) : !Array.isArray(products) || products.length === 0 ? (
+            ) : filteredProducts.length === 0 ? (
               <tr><td colSpan={6} className="p-8 text-center text-muted">No products found.</td></tr>
             ) : (
-              products?.map((product: any) => (
+              filteredProducts.map((product: any) => (
                 <tr key={product._id} className="hover:bg-white/5 transition-colors">
                   <td className="p-4 font-medium">{product.brand}</td>
                   <td className="p-4">{product.name}</td>
