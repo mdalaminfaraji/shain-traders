@@ -46,7 +46,8 @@ export default function DuesReportPage() {
       </div>
 
       <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[700px]">
           <thead>
             <tr className="border-b border-border bg-white/5">
               <th className="p-4 pl-6 font-medium text-muted">Customer Name</th>
@@ -89,6 +90,7 @@ export default function DuesReportPage() {
           )}
         </table>
       </div>
+    </div>
 
       <div className="mt-8 p-4 bg-red-500/5 border border-red-500/10 rounded-xl flex items-start gap-4 no-print">
         <AlertCircle className="w-5 h-5 text-red-400 mt-1" />

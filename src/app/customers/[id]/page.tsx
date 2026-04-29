@@ -77,7 +77,8 @@ export default function CustomerLedgerPage({ params }: { params: Promise<{ id: s
           <h3 className="font-bold text-lg">Transaction History (Ledger)</h3>
           <span className="text-xs text-muted">Showing all sales and payments</span>
         </div>
-        <table className="w-full text-left">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[900px]">
           <thead>
             <tr className="border-b border-border text-xs uppercase tracking-widest text-muted">
               <th className="p-4 pl-6 font-medium">Date</th>
@@ -139,6 +140,7 @@ export default function CustomerLedgerPage({ params }: { params: Promise<{ id: s
           </tbody>
         </table>
       </div>
+    </div>
 
       {/* Print Footer */}
       <div className="hidden print:block mt-12 pt-8 border-t border-dashed border-gray-300">

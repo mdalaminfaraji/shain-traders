@@ -113,7 +113,8 @@ export default function InventoryPage() {
 
       {/* Table */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="border-b border-border bg-white/5">
               <th className="p-4 font-medium text-muted">Brand</th>
@@ -121,6 +122,7 @@ export default function InventoryPage() {
               <th className="p-4 font-medium text-muted">Category</th>
               <th className="p-4 font-medium text-muted">Stock</th>
               <th className="p-4 font-medium text-muted">Unit Price</th>
+              <th className="p-4 font-medium text-muted">Total Price</th>
               <th className="p-4 font-medium text-muted text-right">Actions</th>
             </tr>
           </thead>
@@ -145,6 +147,8 @@ export default function InventoryPage() {
                     </span>
                   </td>
                   <td className="p-4">৳ {product.price}</td>
+                  {/* add comma for stock * price */}
+                  <td className="p-4">৳ {product.stock * product.price.toLocaleString()}</td>
                   <td className="p-4 text-right">
                     <div className="flex justify-end gap-2">
                       <button 
@@ -172,6 +176,7 @@ export default function InventoryPage() {
           </tbody>
         </table>
       </div>
+    </div>
 
       {/* Add Modal */}
       {showAddModal && (

@@ -124,7 +124,8 @@ export default function NewSalePage() {
             {cart.length === 0 ? (
               <p className="text-center py-8 text-muted italic">Cart is empty. Select products from above.</p>
             ) : (
-              <table className="w-full">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[500px]">
                 <thead>
                   <tr className="text-left border-b border-border">
                     <th className="pb-4 font-medium text-muted">Item</th>
@@ -172,7 +173,8 @@ export default function NewSalePage() {
                   ))}
                 </tbody>
               </table>
-            )}
+            </div>
+          )}
           </div>
         </div>
 
