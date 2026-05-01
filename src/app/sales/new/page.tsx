@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -11,6 +12,11 @@ export default function NewSalePage() {
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [cart, setCart] = useState<any[]>([]);
   const [paidAmount, setPaidAmount] = useState(0);
+
+  // New Search & Filter States
+  const [productSearch, setProductSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("All");
+  const [customerSearch, setCustomerSearch] = useState("");
 
   useEffect(() => {
     fetch("/api/customers")
@@ -29,6 +35,20 @@ export default function NewSalePage() {
       })
       .catch(err => console.error("Failed to fetch products:", err));
   }, []);
+
+  const categories = ["All", ...Array.from(new Set(products.map(p => p.category)))];
+
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(productSearch.toLowerCase()) || 
+                          p.brand.toLowerCase().includes(productSearch.toLowerCase());
+    const matchesCategory = categoryFilter === "All" || p.category === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
+
+  const filteredCustomers = customers.filter(c => 
+    c.name.toLowerCase().includes(customerSearch.toLowerCase()) || 
+    c.phone.includes(customerSearch)
+  );
 
   const addToCart = (product: any) => {
     const isRod = product.category === "Rod";
@@ -95,107 +115,175 @@ export default function NewSalePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left: Product Selection */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-card border border-border rounded-xl p-6">
-            <h3 className="font-bold mb-4 flex items-center gap-2">
-              <Search className="w-4 h-4" /> Select Products
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {products?.map((product: any) => (
-                <button
-                  key={product._id}
-                  onClick={() => addToCart(product)}
-                  className="flex flex-col text-left p-4 border border-border rounded-lg hover:border-accent transition-all group"
+          <div className="bg-card border border-border rounded-xl p-6 flex flex-col h-[500px]">
+            <div className="flex flex-col md:flex-row gap-4 mb-6 items-start md:items-center justify-between">
+              <h3 className="font-bold flex items-center gap-2 whitespace-nowrap">
+                <Search className="w-4 h-4 text-accent" /> Select Products
+              </h3>
+              
+              <div className="flex flex-1 gap-2 w-full max-w-lg">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                  <input
+                    type="text"
+                    placeholder="Search by name or brand..."
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                    className="w-full bg-background border border-border rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                  />
+                </div>
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
                 >
-                  <span className="text-xs font-bold text-muted uppercase tracking-wider">{product.brand}</span>
-                  <span className="font-bold text-lg">{product.name}</span>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-accent font-bold">৳ {product.price}</span>
-                    <span className={`text-xs ${product.stock < 10 ? "text-red-400" : "text-muted"}`}>Stock: {product.stock} {product.unit}</span>
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                {filteredProducts.length === 0 ? (
+                  <div className="col-span-full py-12 text-center text-muted italic">
+                    No products found matching your search.
                   </div>
-                </button>
-              ))}
+                ) : (
+                  filteredProducts.map((product: any) => (
+                    <button
+                      key={product._id}
+                      onClick={() => addToCart(product)}
+                      className="flex flex-col text-left p-4 border border-border rounded-xl hover:border-accent hover:bg-white/5 transition-all group relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Plus className="w-4 h-4 text-accent" />
+                      </div>
+                      <span className="text-[10px] font-bold text-muted uppercase tracking-widest mb-1">{product.brand}</span>
+                      <span className="font-bold text-sm line-clamp-1">{product.name}</span>
+                      <div className="flex justify-between items-center mt-3 pt-3 border-t border-border/50">
+                        <span className="text-accent font-bold text-sm">৳ {product.price.toLocaleString()}</span>
+                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${product.stock < 10 ? "bg-red-500/10 text-red-400" : "bg-white/5 text-muted"}`}>
+                          {product.stock} {product.unit}
+                        </span>
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-xl p-6">
+          <div className="bg-card border border-border rounded-xl p-6 flex flex-col h-[400px]">
             <h3 className="font-bold mb-4 flex items-center gap-2">
-              <ShoppingCart className="w-4 h-4" /> Cart Items
+              <ShoppingCart className="w-4 h-4 text-accent" /> Cart Items
+              <span className="ml-auto text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                {cart.length} {cart.length === 1 ? 'Item' : 'Items'}
+              </span>
             </h3>
-            {cart.length === 0 ? (
-              <p className="text-center py-8 text-muted italic">Cart is empty. Select products from above.</p>
-            ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[500px]">
-                <thead>
-                  <tr className="text-left border-b border-border">
-                    <th className="pb-4 font-medium text-muted">Item</th>
-                    <th className="pb-4 font-medium text-muted">Rate</th>
-                    <th className="pb-4 font-medium text-muted">Qty</th>
-                    <th className="pb-4 font-medium text-muted">Total</th>
-                    <th className="pb-4 text-right"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {cart.map((item: any) => (
-                    <tr key={item.productId}>
-                      <td className="py-4">
-                        <p className="font-bold">{item.name}</p>
-                        <p className="text-xs text-muted">{item.brand}</p>
-                      </td>
-                      <td className="py-4">৳ {item.rate}</td>
-                      <td className="py-4">
-                        <input
-                          type="number"
-                          value={item.quantity}
-                          onChange={(e) => {
-                            const val = Number(e.target.value);
-                            setCart(cart.map((i: any) =>
-                              i.productId === item.productId 
-                                ? { ...i, quantity: val, total: val * (i.rate + (i.laborCost || 0)) } 
-                                : i
-                            ));
-                          }}
-                          className="w-16 bg-background border border-border rounded px-2 py-1 text-sm"
-                        />
-                      </td>
-                      <td className="py-4 font-bold">
-                        <p>৳ {item.total}</p>
-                        {item.laborCost > 0 && (
-                          <p className="text-[10px] text-emerald-400 font-medium">Incl. ৳ {item.laborCost * item.quantity} labor</p>
-                        )}
-                      </td>
-                      <td className="py-4 text-right">
-                        <button onClick={() => removeFromCart(item.productId)} className="text-red-400 p-2 hover:bg-red-500/10 rounded">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
+            
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              {cart.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-muted space-y-2">
+                  <ShoppingCart className="w-8 h-8 opacity-20" />
+                  <p className="text-sm italic">Your cart is empty.</p>
+                </div>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-card z-10">
+                    <tr className="text-left border-b border-border">
+                      <th className="pb-3 font-bold text-[10px] text-muted uppercase tracking-widest">Item Detail</th>
+                      <th className="pb-3 font-bold text-[10px] text-muted uppercase tracking-widest">Rate</th>
+                      <th className="pb-3 font-bold text-[10px] text-muted uppercase tracking-widest">Quantity</th>
+                      <th className="pb-3 font-bold text-[10px] text-muted uppercase tracking-widest text-right">Total</th>
+                      <th className="pb-3 w-10"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-border/50">
+                    {cart.map((item: any) => (
+                      <tr key={item.productId} className="group hover:bg-white/5 transition-colors">
+                        <td className="py-4 pr-4">
+                          <p className="font-bold text-foreground leading-none mb-1">{item.name}</p>
+                          <p className="text-[10px] text-muted uppercase tracking-tighter">{item.brand} • {item.category}</p>
+                        </td>
+                        <td className="py-4">
+                          <p className="font-medium text-sm">৳ {item.rate.toLocaleString()}</p>
+                          {item.laborCost > 0 && <p className="text-[9px] text-emerald-400">+৳ {item.laborCost}/kg labor</p>}
+                        </td>
+                        <td className="py-4">
+                          <input
+                            type="number"
+                            min="0.1"
+                            step="any"
+                            value={item.quantity}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value) || 0;
+                              setCart(cart.map((i: any) =>
+                                i.productId === item.productId 
+                                  ? { ...i, quantity: val, total: val * (i.rate + (i.laborCost || 0)) } 
+                                  : i
+                              ));
+                            }}
+                            className="w-20 bg-background border border-border rounded-lg px-2 py-1.5 text-sm font-bold focus:outline-none focus:ring-1 focus:ring-accent"
+                          />
+                        </td>
+                        <td className="py-4 text-right">
+                          <p className="font-bold text-accent">৳ {item.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                        </td>
+                        <td className="py-4 text-right">
+                          <button 
+                            onClick={() => removeFromCart(item.productId)} 
+                            className="text-muted hover:text-red-400 p-2 hover:bg-red-500/10 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
-          )}
           </div>
         </div>
 
         {/* Right: Checkout */}
         <div className="space-y-6">
           <div className="bg-card border border-border rounded-xl p-6 sticky top-8">
-            <h3 className="font-bold mb-6">Order Summary</h3>
+            <h3 className="font-bold mb-6 flex items-center gap-2">
+              <ShoppingCart className="w-4 h-4 text-accent" /> Order Summary
+            </h3>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-muted mb-1">Customer</label>
-                <select
-                  required
-                  value={selectedCustomer}
-                  onChange={(e) => setSelectedCustomer(e.target.value)}
-                  className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
-                >
-                  <option value="">Select a customer</option>
-                  {customers?.map((c: any) => (
-                    <option key={c._id} value={c._id}>{c.name} ({c.phone})</option>
-                  ))}
-                </select>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-muted uppercase tracking-widest mb-2">Search Customer</label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                    <input
+                      type="text"
+                      placeholder="Name or Phone..."
+                      value={customerSearch}
+                      onChange={(e) => setCustomerSearch(e.target.value)}
+                      className="w-full bg-background border border-border rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-muted uppercase tracking-widest mb-2">Select Customer</label>
+                  <select
+                    required
+                    value={selectedCustomer}
+                    onChange={(e) => setSelectedCustomer(e.target.value)}
+                    className="w-full bg-background border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                  >
+                    <option value="">Choose a customer...</option>
+                    {filteredCustomers.map((c: any) => (
+                      <option key={c._id} value={c._id}>{c.name} ({c.phone})</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div className="space-y-2 py-4 border-t border-b border-border">
