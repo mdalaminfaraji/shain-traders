@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, LayoutDashboard, Box, Users, AlertCircle, ShoppingCart, CreditCard } from "lucide-react";
+import { Menu, X, LayoutDashboard, Box, Users, AlertCircle, ShoppingCart, CreditCard, Settings, LogOut } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { useRouter } from "next/navigation";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -23,11 +24,20 @@ const navItems = [
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   // Close sidebar on route change (for mobile)
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
+
+  const handleLogout = async () => {
+    if (confirm("Are you sure you want to log out?")) {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/login");
+      router.refresh();
+    }
+  };
 
   return (
     <>
@@ -50,7 +60,7 @@ export default function Sidebar() {
       {/* Sidebar Content */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 bg-sidebar border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:h-screen lg:sticky lg:top-0 no-print",
+          "fixed inset-y-0 left-0 z-40 w-64 bg-sidebar border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:h-screen lg:sticky lg:top-0 no-print flex flex-col",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -79,6 +89,29 @@ export default function Sidebar() {
             );
           })}
         </nav>
+
+        <div className="p-4 border-t border-border space-y-1">
+          <Link
+            href="/settings"
+            className={cn(
+              "flex items-center gap-3 p-3 rounded-lg transition-all group",
+              pathname === "/settings" 
+                ? "bg-white/10 text-white font-bold" 
+                : "text-muted hover:bg-white/5 hover:text-foreground"
+            )}
+          >
+            <Settings className="w-5 h-5" />
+            <span>Settings</span>
+          </Link>
+          
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 p-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-all group"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Log Out</span>
+          </button>
+        </div>
 
         <div className="p-4 border-t border-border flex justify-between items-center text-[10px] text-muted uppercase tracking-widest font-bold">
           <span>Version 1.0.0</span>
