@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Package, MoreHorizontal, Search } from "lucide-react";
+import { Plus, MoreHorizontal, Search } from "lucide-react";
 
 export default function InventoryPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -18,6 +19,21 @@ export default function InventoryPage() {
     price: 0,
     stock: 0,
   });
+
+  const [tonInput, setTonInput] = useState("");
+  const [kgInput, setKgInput] = useState("");
+
+  const formatStock = (stock: number, category: string, unit: string) => {
+    if (category === "Rod") {
+      const tons = Math.floor(stock / 1000);
+      const kgs = stock % 1000;
+      let result = "";
+      if (tons > 0) result += `${tons} ton `;
+      if (kgs > 0 || tons === 0) result += `${kgs} kg`;
+      return result.trim();
+    }
+    return `${stock} ${unit}`;
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -47,6 +63,8 @@ export default function InventoryPage() {
       setShowAddModal(false);
       fetchProducts();
       setNewProduct({ name: "", brand: "", category: "Rod", unit: "KG", price: 0, stock: 0 });
+      setTonInput("");
+      setKgInput("");
     }
   }
 
@@ -62,8 +80,20 @@ export default function InventoryPage() {
     if (res.ok) {
       setShowEditModal(false);
       fetchProducts();
+      setTonInput("");
+      setKgInput("");
     }
   }
+
+  useEffect(() => {
+    if (showEditModal && selectedProduct && selectedProduct.category === "Rod") {
+      setTonInput(Math.floor(selectedProduct.stock / 1000).toString());
+      setKgInput((selectedProduct.stock % 1000).toString());
+    } else {
+      setTonInput("");
+      setKgInput("");
+    }
+  }, [showEditModal, selectedProduct]);
 
   async function handleDeleteProduct(id: string) {
     if (!confirm("Are you sure you want to delete this product?")) return;
@@ -143,12 +173,11 @@ export default function InventoryPage() {
                   </td>
                   <td className="p-4">
                     <span className={product.stock < 10 ? "text-red-400 font-medium" : ""}>
-                      {product.stock} {product.unit}
+                      {formatStock(product.stock, product.category, product.unit)}
                     </span>
                   </td>
-                  <td className="p-4">৳ {product.price}</td>
-                  {/* add comma for stock * price */}
-                  <td className="p-4">৳ {product.stock * product.price.toLocaleString()}</td>
+                  <td className="p-4">৳ {product.price.toLocaleString()}</td>
+                  <td className="p-4 font-bold text-accent">৳ {(product.stock * product.price).toLocaleString()}</td>
                   <td className="p-4 text-right">
                     <div className="flex justify-end gap-2">
                       <button 
@@ -229,16 +258,55 @@ export default function InventoryPage() {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-muted mb-1">Stock Amount</label>
-                  <input
-                    type="number"
-                    required
-                    value={newProduct.stock}
-                    onChange={(e) => setNewProduct({ ...newProduct, stock: Number(e.target.value) })}
-                    className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
-                  />
-                </div>
+                {newProduct.category === "Rod" ? (
+                  <div className="col-span-2 grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-muted mb-1">Stock (Tons)</label>
+                      <input
+                        type="number"
+                        step="any"
+                        placeholder="e.g. 1.5"
+                        value={tonInput}
+                        onChange={(e) => {
+                          setTonInput(e.target.value);
+                          const tons = parseFloat(e.target.value) || 0;
+                          const kgs = parseFloat(kgInput) || 0;
+                          setNewProduct({ ...newProduct, stock: Math.round(tons * 1000 + kgs) });
+                        }}
+                        className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-muted mb-1">Stock (KG)</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 200"
+                        value={kgInput}
+                        onChange={(e) => {
+                          setKgInput(e.target.value);
+                          const tons = parseFloat(tonInput) || 0;
+                          const kgs = parseFloat(e.target.value) || 0;
+                          setNewProduct({ ...newProduct, stock: Math.round(tons * 1000 + kgs) });
+                        }}
+                        className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-[10px] text-muted italic">Total: {newProduct.stock} KG</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-muted mb-1">Stock Amount</label>
+                    <input
+                      type="number"
+                      required
+                      value={newProduct.stock}
+                      onChange={(e) => setNewProduct({ ...newProduct, stock: Number(e.target.value) })}
+                      className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-muted mb-1">Unit Price (৳)</label>
                   <input
@@ -319,16 +387,55 @@ export default function InventoryPage() {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-muted mb-1">Stock Amount</label>
-                  <input
-                    type="number"
-                    required
-                    value={selectedProduct.stock}
-                    onChange={(e) => setSelectedProduct({ ...selectedProduct, stock: Number(e.target.value) })}
-                    className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
-                  />
-                </div>
+                {selectedProduct.category === "Rod" ? (
+                  <div className="col-span-2 grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-muted mb-1">Stock (Tons)</label>
+                      <input
+                        type="number"
+                        step="any"
+                        placeholder="e.g. 1.5"
+                        value={tonInput}
+                        onChange={(e) => {
+                          setTonInput(e.target.value);
+                          const tons = parseFloat(e.target.value) || 0;
+                          const kgs = parseFloat(kgInput) || 0;
+                          setSelectedProduct({ ...selectedProduct, stock: Math.round(tons * 1000 + kgs) });
+                        }}
+                        className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-muted mb-1">Stock (KG)</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 200"
+                        value={kgInput}
+                        onChange={(e) => {
+                          setKgInput(e.target.value);
+                          const tons = parseFloat(tonInput) || 0;
+                          const kgs = parseFloat(e.target.value) || 0;
+                          setSelectedProduct({ ...selectedProduct, stock: Math.round(tons * 1000 + kgs) });
+                        }}
+                        className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-[10px] text-muted italic">Total: {selectedProduct.stock} KG</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-muted mb-1">Stock Amount</label>
+                    <input
+                      type="number"
+                      required
+                      value={selectedProduct.stock}
+                      onChange={(e) => setSelectedProduct({ ...selectedProduct, stock: Number(e.target.value) })}
+                      className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-muted mb-1">Unit Price (৳)</label>
                   <input
