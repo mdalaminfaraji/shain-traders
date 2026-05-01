@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 
 export default function NewSalePage() {
   const router = useRouter();
-  const [customers, setCustomers] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState("");
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState<any[]>([]);
   const [paidAmount, setPaidAmount] = useState(0);
 
   useEffect(() => {

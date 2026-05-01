@@ -5,7 +5,7 @@ import { Plus, Users, Search, ChevronRight, Phone, MapPin, MoreHorizontal } from
 import Link from "next/link";
 
 export default function CustomersPage() {
-  const [customers, setCustomers] = useState([]);
+  const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -15,7 +15,7 @@ export default function CustomersPage() {
     name: "",
     phone: "",
     address: "",
-    creditLimit: 0,
+    // creditLimit: 0,
   });
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function CustomersPage() {
     if (res.ok) {
       setShowAddModal(false);
       fetchCustomers();
-      setNewCustomer({ name: "", phone: "", address: "", creditLimit: 0 });
+      setNewCustomer({ name: "", phone: "", address: ""});
     }
   }
 
@@ -169,10 +169,10 @@ export default function CustomersPage() {
                   <span className="truncate">{customer.address || "No address"}</span>
                 </div>
               </div>
-              <div className="mt-6 flex items-center justify-between pt-4 border-t border-border">
+              {/* <div className="mt-6 flex items-center justify-between pt-4 border-t border-border">
                 <span className="text-xs text-muted">Credit Limit: ৳ {customer.creditLimit.toLocaleString()}</span>
                 <ChevronRight className="w-4 h-4 text-muted group-hover:translate-x-1 transition-transform" />
-              </div>
+              </div> */}
             </Link>
           ))
         )}
@@ -215,7 +215,7 @@ export default function CustomersPage() {
                   className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent h-24 resize-none"
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-muted mb-1">Credit Limit (৳)</label>
                 <input
                   type="number"
@@ -224,7 +224,7 @@ export default function CustomersPage() {
                   onChange={(e) => setNewCustomer({ ...newCustomer, creditLimit: Number(e.target.value) })}
                   className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
                 />
-              </div>
+              </div> */}
               <div className="flex gap-4 mt-8">
                 <button
                   type="button"
@@ -279,7 +279,7 @@ export default function CustomersPage() {
                   className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent h-24 resize-none"
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-muted mb-1">Credit Limit (৳)</label>
                 <input
                   type="number"
@@ -288,7 +288,7 @@ export default function CustomersPage() {
                   onChange={(e) => setSelectedCustomer({ ...selectedCustomer, creditLimit: Number(e.target.value) })}
                   className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
                 />
-              </div>
+              </div> */}
               <div className="flex gap-4 mt-8">
                 <button
                   type="button"

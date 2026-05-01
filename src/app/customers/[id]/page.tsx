@@ -63,10 +63,10 @@ export default function CustomerLedgerPage({ params }: { params: Promise<{ id: s
             <p className={`text-3xl font-black ${customer.balance > 0 ? "text-red-400" : "text-emerald-400"}`}>
               ৳ {customer.balance.toLocaleString()}
             </p>
-            <div className="mt-4 pt-4 border-t border-white/5 flex justify-between text-xs text-muted">
+            {/* <div className="mt-4 pt-4 border-t border-white/5 flex justify-between text-xs text-muted">
               <span>Credit Limit</span>
               <span>৳ {customer.creditLimit.toLocaleString()}</span>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

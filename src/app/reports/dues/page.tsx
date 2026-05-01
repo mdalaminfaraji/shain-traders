@@ -5,7 +5,7 @@ import { AlertCircle, ArrowLeft, Printer, Phone } from "lucide-react";
 import Link from "next/link";
 
 export default function DuesReportPage() {
-  const [customers, setCustomers] = useState([]);
+  const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

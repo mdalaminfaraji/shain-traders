@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export default function RecordPaymentPage() {
   const router = useRouter();
-  const [customers, setCustomers] = useState([]);
+  const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [payment, setPayment] = useState({
     customerId: "",

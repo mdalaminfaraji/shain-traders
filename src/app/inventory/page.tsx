@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Plus, Package, MoreHorizontal, Search } from "lucide-react";
 
 export default function InventoryPage() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
