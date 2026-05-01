@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   description: "Modern inventory and customer ledger system",
 };
 
-import Sidebar from "@/components/Sidebar";
+import LayoutWrapper from "@/components/LayoutWrapper";
 
 export default function RootLayout({
   children,
@@ -30,22 +30,9 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex bg-background text-foreground">
-        <Sidebar />
-
-        {/* Main Content */}
-        <main className="flex-1 min-w-0 overflow-x-hidden">
-          {/* Mobile Top Bar */}
-          <div className="h-16 lg:hidden border-b border-border bg-background/80 backdrop-blur-md fixed top-0 w-full z-40 no-print flex items-center px-4">
-            <span className="ml-12 font-bold tracking-tight text-xs uppercase opacity-70">Shahin Traders</span>
-          </div>
-          <div className="h-16 lg:hidden no-print" />
-          
-          <div className="max-w-[1600px] mx-auto">
-            {children}
-          </div>
-        </main>
-      </body>
+      <LayoutWrapper>
+        {children}
+      </LayoutWrapper>
     </html>
   );
 }
