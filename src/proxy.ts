@@ -4,12 +4,15 @@ import { jwtVerify } from "jose";
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_shahin_traders");
 
-export async function middleware(request: NextRequest) {
+/**
+ * Migration note: middleware was renamed to proxy in Next.js 16.
+ */
+export async function proxy(request: NextRequest) {
   const token = request.cookies.get("auth_token")?.value;
   const isLoginPage = request.nextUrl.pathname === "/login";
   const isAuthApi = request.nextUrl.pathname.startsWith("/api/auth");
 
-  // Allow auth APIs to proceed (except update/me which should be checked inside if needed, but here we allow all for simplicity or check explicitly)
+  // Allow auth APIs to proceed
   if (isAuthApi) {
     return NextResponse.next();
   }
