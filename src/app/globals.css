@@ -28,12 +28,160 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
+/* Print styles for ledger now you change table header and all tex */
+
 @media print {
-  body {
-    background: white;
-    color: black;
+  @page {
+    size: A4 portrait;
+    margin: 15mm;
   }
+  
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+  }
+
   .no-print {
-    display: none;
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  /* Reset dark backgrounds */
+  .bg-card, .bg-sidebar, .bg-background, .bg-white\/5 {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* High contrast text */
+  .text-foreground, .text-muted, .text-accent, .text-emerald-400, .text-red-400, .text-white {
+    color: #000000 !important;
+  }
+
+  /* Table styles - Use simpler border styles for better compatibility */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    /* border: 1px solid #c3baba !important; */
+  }
+
+  th, td {
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #000 !important;
+    background: transparent !important;
+    padding: 6px 8px !important;
+    vertical-align: top !important;
+    /* font will be Capitalize */
+    text-transform: capitalize !important;
+  
+  }
+
+   /* th {
+    background: #f8f9fa !important;
+    color: #000 !important;
+    font-weight: 600 !important;
+    font-size: 10pt !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+  } */
+
+  th:first-child, td:first-child {
+    padding-left: 4px !important;
+  }
+
+  th:last-child, td:last-child {
+    padding-right: 4px !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* tbody tr:last-child td {
+    border-bottom: 2px solid #c3baba !important;
+  } */
+
+  .overflow-x-auto, .overflow-y-auto {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .border, .border-border, .border-white\/10 {
+    border-color: #c3baba !important;
+  }
+
+  .shadow-2xl, .shadow-xl, .shadow-md {
+    box-shadow: none !important;
+  }
+
+  /* Print specific colors */
+  /* .print-text-red {
+    color: #d62828 !important;
+    font-weight: 700 !important;
+  }
+
+  .print-text-emerald {
+    color: #2a9d8f !important;
+    font-weight: 700 !important;
+  } */
+
+  /* Header and summary */
+  .border-t-2 {
+    border-top-width: 2px !important;
+  }
+
+  .border-t {
+    border-top-width: 1px !important;
+  }
+
+  .pb-6 {
+    padding-bottom: 1rem !important;
+  }
+
+  .pt-4 {
+    padding-top: 0.75rem !important;
+  }
+
+  .pt-8 {
+    padding-top: 1.5rem !important;
+  }
+
+  .text-xs {
+    font-size: 10pt !important;
+  }
+
+  .text-sm {
+    font-size: 12pt !important;
+  }
+
+  .text-lg {
+    font-size: 14pt !important;
+  }
+
+  .text-xl {
+    font-size: 16pt !important;
+  }
+
+  .text-3xl {
+    font-size: 18pt !important;
+  }
+
+  .font-bold {
+    font-weight: 600 !important;
+  }
+
+  .font-black {
+    font-weight: 600 !important;
   }
 }

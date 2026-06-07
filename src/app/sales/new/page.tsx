@@ -17,6 +17,7 @@ export default function NewSalePage() {
   const [productSearch, setProductSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [customerSearch, setCustomerSearch] = useState("");
+  const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/customers")
@@ -57,12 +58,21 @@ export default function NewSalePage() {
 
     const existing = cart.find((item: any) => item.productId === product._id);
     if (existing) {
+      const newQty = existing.quantity + 1;
+      if (newQty > product.stock) {
+        alert(`Cannot add more. Only ${product.stock} available in stock.`);
+        return;
+      }
       setCart(cart.map((item: any) =>
         item.productId === product._id 
-          ? { ...item, quantity: item.quantity + 1, total: (item.quantity + 1) * finalRate } 
+          ? { ...item, quantity: newQty, total: newQty * (item.rate + item.laborCost) } 
           : item
       ));
     } else {
+      if (product.stock < 1) {
+        alert("Product is out of stock!");
+        return;
+      }
       setCart([...cart, {
         productId: product._id,
         name: product.name,
@@ -71,7 +81,8 @@ export default function NewSalePage() {
         quantity: 1,
         rate: product.price,
         laborCost: laborCostPerUnit,
-        total: finalRate
+        total: finalRate,
+        stock: product.stock
       }]);
     }
   };
@@ -208,25 +219,53 @@ export default function NewSalePage() {
                           <p className="text-[10px] text-muted uppercase tracking-tighter">{item.brand} • {item.category}</p>
                         </td>
                         <td className="py-4">
-                          <p className="font-medium text-sm">৳ {item.rate.toLocaleString()}</p>
-                          {item.laborCost > 0 && <p className="text-[9px] text-emerald-400">+৳ {item.laborCost}/kg labor</p>}
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-1">
+                              <span className="text-muted text-sm">৳</span>
+                              <input
+                                type="number"
+                                min="0"
+                                step="any"
+                                value={item.rate}
+                                onChange={(e) => {
+                                  const val = parseFloat(e.target.value) || 0;
+                                  setCart(cart.map((i: any) =>
+                                    i.productId === item.productId 
+                                      ? { ...i, rate: val, total: i.quantity * (val + (i.laborCost || 0)) } 
+                                      : i
+                                  ));
+                                }}
+                                className="w-24 bg-background border border-border rounded-lg px-2 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-accent"
+                              />
+                            </div>
+                            {/* {item.laborCost > 0 && <p className="text-[9px] text-emerald-400 font-medium">+৳ {item.laborCost}/kg labor</p>} */}
+                          </div>
                         </td>
                         <td className="py-4">
-                          <input
-                            type="number"
-                            min="0.1"
-                            step="any"
-                            value={item.quantity}
-                            onChange={(e) => {
-                              const val = parseFloat(e.target.value) || 0;
-                              setCart(cart.map((i: any) =>
-                                i.productId === item.productId 
-                                  ? { ...i, quantity: val, total: val * (i.rate + (i.laborCost || 0)) } 
-                                  : i
-                              ));
-                            }}
-                            className="w-20 bg-background border border-border rounded-lg px-2 py-1.5 text-sm font-bold focus:outline-none focus:ring-1 focus:ring-accent"
-                          />
+                          <div className="flex flex-col gap-1">
+                            <input
+                              type="number"
+                              min="0.1"
+                              max={item.stock}
+                              step="any"
+                              value={item.quantity}
+                              onChange={(e) => {
+                                let val = parseFloat(e.target.value) || 0;
+                                if (item.stock !== undefined && val > item.stock) {
+                                  val = item.stock;
+                                }
+                                setCart(cart.map((i: any) =>
+                                  i.productId === item.productId 
+                                    ? { ...i, quantity: val, total: val * (i.rate + (i.laborCost || 0)) } 
+                                    : i
+                                ));
+                              }}
+                              className="w-20 bg-background border border-border rounded-lg px-2 py-1.5 text-sm font-bold focus:outline-none focus:ring-1 focus:ring-accent"
+                            />
+                            {item.stock !== undefined && (
+                              <p className="text-[9px] text-muted font-medium">Max: {item.stock}</p>
+                            )}
+                          </div>
                         </td>
                         <td className="py-4 text-right">
                           <p className="font-bold text-accent">৳ {item.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
@@ -256,33 +295,72 @@ export default function NewSalePage() {
             </h3>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
-                <div>
-                  <label className="block text-[10px] font-bold text-muted uppercase tracking-widest mb-2">Search Customer</label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
-                    <input
-                      type="text"
-                      placeholder="Name or Phone..."
-                      value={customerSearch}
-                      onChange={(e) => setCustomerSearch(e.target.value)}
-                      className="w-full bg-background border border-border rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-bold text-muted uppercase tracking-widest mb-2">Select Customer</label>
-                  <select
-                    required
-                    value={selectedCustomer}
-                    onChange={(e) => setSelectedCustomer(e.target.value)}
-                    className="w-full bg-background border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                <div className="relative">
+                  <label className="block text-[10px] font-bold text-muted uppercase tracking-widest mb-2">Customer</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomerDropdownOpen(!isCustomerDropdownOpen)}
+                    className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-left text-sm flex justify-between items-center focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
                   >
-                    <option value="">Choose a customer...</option>
-                    {filteredCustomers.map((c: any) => (
-                      <option key={c._id} value={c._id}>{c.name} ({c.phone})</option>
-                    ))}
-                  </select>
+                    <span>
+                      {customers.find(c => c._id === selectedCustomer)
+                        ? `${customers.find(c => c._id === selectedCustomer).name} (${customers.find(c => c._id === selectedCustomer).phone})`
+                        : "Choose a customer..."}
+                    </span>
+                    <span className="text-muted text-xs">▼</span>
+                  </button>
+
+                  {isCustomerDropdownOpen && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-40" 
+                        onClick={() => {
+                          setIsCustomerDropdownOpen(false);
+                          setCustomerSearch("");
+                        }}
+                      />
+                      <div className="absolute z-50 left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-xl p-2 space-y-2">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                          <input
+                            type="text"
+                            placeholder="Search by name or phone..."
+                            value={customerSearch}
+                            onChange={(e) => setCustomerSearch(e.target.value)}
+                            className="w-full bg-background border border-border rounded-lg pl-9 pr-4 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                            autoFocus
+                          />
+                        </div>
+                        <div className="max-h-60 overflow-y-auto space-y-1 custom-scrollbar">
+                          {filteredCustomers.length === 0 ? (
+                            <div className="py-2 text-center text-xs text-muted italic">
+                              No customers found.
+                            </div>
+                          ) : (
+                            filteredCustomers.map((c: any) => (
+                              <button
+                                key={c._id}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedCustomer(c._id);
+                                  setIsCustomerDropdownOpen(false);
+                                  setCustomerSearch("");
+                                }}
+                                className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors cursor-pointer flex justify-between items-center ${
+                                  selectedCustomer === c._id
+                                    ? "bg-accent text-white hidden"
+                                    : "hover:bg-white/5 text-foreground"
+                                }`}
+                              >
+                                <span className="font-medium">{c.name}</span>
+                                <span className={`text-[10px] font-mono ${selectedCustomer === c._id ? "text-white/80" : "text-muted"}`}>{c.phone}</span>
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -321,7 +399,7 @@ export default function NewSalePage() {
               <button
                 type="submit"
                 disabled={!selectedCustomer || cart.length === 0}
-                className="w-full bg-white text-black py-4 rounded-xl font-bold text-lg hover:bg-light-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-white text-black cursor-pointer py-4 rounded-xl font-bold text-lg hover:bg-light-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Complete Transaction
               </button>

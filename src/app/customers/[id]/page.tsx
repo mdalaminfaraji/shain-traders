@@ -23,6 +23,12 @@ export default function CustomerLedgerPage({ params }: { params: Promise<{ id: s
 
   const { customer, ledger } = data;
 
+  const totalDebit = ledger ? ledger.reduce((acc: number, entry: any) => entry.type === "Sale" ? acc + entry.amount : acc, 0) : 0;
+  const totalCredit = ledger ? ledger.reduce((acc: number, entry: any) => {
+    if (entry.type === "Payment") return acc + entry.amount;
+    return acc + (entry.paid || 0);
+  }, 0) : 0;
+
   const handlePrint = () => {
     window.print();
   };
@@ -36,15 +42,36 @@ export default function CustomerLedgerPage({ params }: { params: Promise<{ id: s
         <div className="flex gap-4">
           <button
             onClick={handlePrint}
-            className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-light-gray transition-colors"
+            className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-light-gray transition-colors cursor-pointer"
           >
             <Printer className="w-4 h-4" /> Print Statement
           </button>
         </div>
       </div>
 
+      {/* Print-only Header */}
+      <div className="hidden print:flex justify-between items-start mb-8 pb-6 border-b-2 border-black">
+        <div>
+          <h1 className="text-3xl font-black uppercase tracking-tighter mb-1">SHAHIN TRADERS</h1>
+          <p className="text-xs font-bold text-gray-600">Modern Inventory & Trading Solutions</p>
+          <p className="text-[10px] mt-2 text-gray-500">
+            Lokhipasha, Narail, Bangladesh<br />
+            Phone: +8801828152897 | Email: shahin@gmail.com
+          </p>
+        </div>
+        <div className="text-right">
+          <h2 className="text-xl font-bold uppercase mb-2">Account Statement</h2>
+          <div className="space-y-0.5 text-xs text-gray-700">
+            <p><span className="font-bold text-black">Customer:</span> {customer.name}</p>
+            <p><span className="font-bold text-black">Phone:</span> {customer.phone}</p>
+            {customer.address && <p><span className="font-bold text-black">Address:</span> {customer.address}</p>}
+            <p><span className="font-bold text-black">Date Generated:</span> {new Date().toLocaleDateString()}</p>
+          </div>
+        </div>
+      </div>
+
       {/* Header Info */}
-      <div className="bg-card border border-border rounded-2xl p-8 mb-8 relative overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl p-8 mb-8 relative overflow-hidden print:hidden">
         <div className="absolute top-0 right-0 p-8 opacity-10">
           <FileText className="w-32 h-32" />
         </div>
@@ -139,6 +166,26 @@ export default function CustomerLedgerPage({ params }: { params: Promise<{ id: s
             })()}
           </tbody>
         </table>
+      </div>
+    </div>
+
+    {/* Statement Summary (Print Only) */}
+    <div className="hidden print:flex justify-end mt-6">
+      <div className="w-80 space-y-2 border-t-2 border-black pt-4">
+        <div className="flex justify-between text-xs">
+          <span className="font-medium text-gray-600">Total Purchases (Debit):</span>
+          <span className="font-bold">৳ {totalDebit.toLocaleString()}</span>
+        </div>
+        <div className="flex justify-between text-xs">
+          <span className="font-medium text-gray-600">Total Paid (Credit):</span>
+          <span className="font-bold print-text-emerald">৳ {totalCredit.toLocaleString()}</span>
+        </div>
+        <div className="flex justify-between text-sm font-black border-t border-black pt-2">
+          <span>Net Balance Due:</span>
+          <span className={customer.balance > 0 ? "print-text-red" : "print-text-emerald"}>
+            ৳ {customer.balance.toLocaleString()}
+          </span>
+        </div>
       </div>
     </div>
 
