@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
 import { CreditCard, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import SearchableSelect from "../../../components/SearchableSelect";
 
 export default function RecordPaymentPage() {
   const router = useRouter();
@@ -56,18 +58,17 @@ export default function RecordPaymentPage() {
       <div className="bg-card border border-border rounded-2xl p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-muted mb-2">Select Customer</label>
-            <select
-              required
+            <SearchableSelect
+              label="Select Customer"
+              placeholder="Select a customer"
+              options={customers.map((c: any) => ({
+                value: c._id,
+                label: `${c.name} (৳ ${c.balance.toLocaleString()})`,
+              }))}
               value={payment.customerId}
-              onChange={(e) => setPayment({ ...payment, customerId: e.target.value })}
-              className="w-full bg-background border border-border rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-accent appearance-none"
-            >
-              <option value="">Select a customer</option>
-              {customers.map((c: any) => (
-                <option key={c._id} value={c._id}>{c.name} (৳ {c.balance.toLocaleString()})</option>
-              ))}
-            </select>
+              onChange={(val) => setPayment({ ...payment, customerId: val })}
+              required
+            />
           </div>
 
           {selectedCustData && (
@@ -88,7 +89,7 @@ export default function RecordPaymentPage() {
                 min="1"
                 value={payment.amount}
                 onChange={(e) => setPayment({ ...payment, amount: Number(e.target.value) })}
-                className="w-full bg-background border border-border rounded-xl px-4 py-3 text-2xl font-bold text-emerald-400 focus:outline-none focus:ring-1 focus:ring-accent"
+                className="w-full bg-background border border-border rounded-xl px-4 py-3 text-emerald-400 focus:outline-none focus:ring-1 focus:ring-accent"
               />
             </div>
             <div>

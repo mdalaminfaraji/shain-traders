@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState, use } from "react";
-import { Printer, Download, ArrowLeft, Calendar, FileText, CreditCard } from "lucide-react";
+import { Printer, ArrowLeft, Calendar, FileText, CreditCard } from "lucide-react";
 import Link from "next/link";
 
 export default function CustomerLedgerPage({ params }: { params: Promise<{ id: string }> }) {

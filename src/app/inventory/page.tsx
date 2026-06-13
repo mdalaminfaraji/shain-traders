@@ -3,6 +3,68 @@
 
 import { useEffect, useState } from "react";
 import { Plus, MoreHorizontal, Search } from "lucide-react";
+import SearchableSelect from "../../components/SearchableSelect";
+
+const CATEGORIES = [
+  { value: "Rod", label: "রড (Rod)" },
+  { value: "Cement", label: "সিমেন্ট (Cement)" },
+  { value: "Plumber", label: "প্লাম্বার (Plumber)" },
+  { value: "Sanitary", label: "স্যানিটারি (Sanitary)" },
+  { value: "Others", label: "অন্যান্য (Others)" },
+];
+
+const BRANDS_BY_CATEGORY: Record<string, { value: string; label: string }[]> = {
+  Rod: [
+    { value: "BSRM", label: "BSRM" },
+    { value: "KSRM", label: "KSRM" },
+    { value: "GPH Ispat", label: "GPH Ispat" },
+    { value: "Abul Khair Steel", label: "Abul Khair Steel" },
+  ],
+  Cement: [
+    { value: "Shah Cement", label: "Shah Cement" },
+    { value: "Seven Rings Cement", label: "Seven Rings Cement" },
+    { value: "Crown Cement", label: "Crown Cement" },
+    { value: "Premier Cement", label: "Premier Cement" },
+  ],
+  Plumber: [
+    { value: "RFL", label: "RFL" },
+    { value: "Lira", label: "Lira" },
+    { value: "National", label: "National" },
+  ],
+  Sanitary: [
+    { value: "Stella", label: "Stella" },
+    { value: "Charu", label: "Charu" },
+    { value: "RAK", label: "RAK" },
+  ],
+};
+
+const ROD_SIZES = [
+  { value: "8 mm", label: "8 mm" },
+  { value: "10 mm", label: "10 mm" },
+  { value: "12 mm", label: "12 mm" },
+  { value: "16 mm", label: "16 mm" },
+  { value: "20 mm", label: "20 mm" },
+  { value: "22 mm", label: "22 mm" },
+  { value: "25 mm", label: "25 mm" },
+  { value: "28 mm", label: "28 mm" },
+  { value: "32 mm", label: "32 mm" },
+  { value: "40 mm", label: "40 mm" },
+  { value: "50 mm", label: "50 mm" },
+];
+
+const COMMON_UNITS = [
+  { value: "KG", label: "KG" },
+  { value: "Bag", label: "Bag (বস্তা)" },
+  { value: "Pcs", label: "Pcs (পিস)" },
+  { value: "Feet", label: "Feet (ফিট)" },
+  { value: "Set", label: "Set (সেট)" },
+  { value: "Ltr", label: "Ltr (লিটার)" },
+];
+
+const extractRodSize = (name: string) => {
+  const match = name.match(/(\d+\s*mm)/i);
+  return match ? match[1].toLowerCase().replace("mm", " mm") : "";
+};
 
 export default function InventoryPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -19,6 +81,9 @@ export default function InventoryPage() {
     price: 0,
     stock: 0,
   });
+
+  const [newProductSize, setNewProductSize] = useState("");
+  const [editProductSize, setEditProductSize] = useState("");
 
   const [tonInput, setTonInput] = useState("");
   const [kgInput, setKgInput] = useState("");
@@ -63,6 +128,7 @@ export default function InventoryPage() {
       setShowAddModal(false);
       fetchProducts();
       setNewProduct({ name: "", brand: "", category: "Rod", unit: "KG", price: 0, stock: 0 });
+      setNewProductSize("");
       setTonInput("");
       setKgInput("");
     }
@@ -80,20 +146,25 @@ export default function InventoryPage() {
     if (res.ok) {
       setShowEditModal(false);
       fetchProducts();
+      setEditProductSize("");
       setTonInput("");
       setKgInput("");
     }
   }
 
-  useEffect(() => {
-    if (showEditModal && selectedProduct && selectedProduct.category === "Rod") {
-      setTonInput(Math.floor(selectedProduct.stock / 1000).toString());
-      setKgInput((selectedProduct.stock % 1000).toString());
+  const handleOpenEditModal = (product: any) => {
+    setSelectedProduct(product);
+    if (product.category === "Rod") {
+      setTonInput(Math.floor(product.stock / 1000).toString());
+      setKgInput((product.stock % 1000).toString());
+      setEditProductSize(extractRodSize(product.name));
     } else {
       setTonInput("");
       setKgInput("");
+      setEditProductSize("");
     }
-  }, [showEditModal, selectedProduct]);
+    setShowEditModal(true);
+  };
 
   async function handleDeleteProduct(id: string) {
     if (!confirm("Are you sure you want to delete this product?")) return;
@@ -181,10 +252,7 @@ export default function InventoryPage() {
                   <td className="p-4 text-right">
                     <div className="flex justify-end gap-2">
                       <button 
-                        onClick={() => {
-                          setSelectedProduct(product);
-                          setShowEditModal(true);
-                        }}
+                        onClick={() => handleOpenEditModal(product)}
                         className="p-2 hover:bg-white/10 rounded-lg text-muted hover:text-foreground transition-colors"
                         title="Edit"
                       >
@@ -214,16 +282,59 @@ export default function InventoryPage() {
             <h3 className="text-xl font-bold mb-6">Add New Product</h3>
             <form onSubmit={handleAddProduct} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-muted mb-1">Brand Name</label>
-                <input
-                  type="text"
+                <SearchableSelect
+                  label="Category"
+                  placeholder="Select category..."
+                  options={CATEGORIES}
+                  value={newProduct.category}
+                  onChange={(val) => {
+                    const isRod = val === "Rod";
+                    const isCement = val === "Cement";
+                    const defaultUnit = isRod ? "KG" : isCement ? "Bag" : "Pcs";
+                    setNewProduct({
+                      ...newProduct,
+                      category: val,
+                      brand: "",
+                      unit: defaultUnit,
+                      name: isRod ? "" : newProduct.name,
+                    });
+                    if (!isRod) {
+                      setNewProductSize("");
+                    }
+                  }}
                   required
-                  placeholder="e.g. BSRM, Anwar"
-                  value={newProduct.brand}
-                  onChange={(e) => setNewProduct({ ...newProduct, brand: e.target.value })}
-                  className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
+
+              <div>
+                <SearchableSelect
+                  label="Brand Name"
+                  placeholder="Select or search brand..."
+                  options={BRANDS_BY_CATEGORY[newProduct.category] || []}
+                  value={newProduct.brand}
+                  onChange={(val) => setNewProduct({ ...newProduct, brand: val })}
+                  allowCustom={true}
+                  required
+                />
+              </div>
+
+              {newProduct.category === "Rod" && (
+                <div>
+                  <SearchableSelect
+                    label="Size"
+                    placeholder="Select size..."
+                    options={ROD_SIZES}
+                    value={newProductSize}
+                    onChange={(val) => {
+                      setNewProductSize(val);
+                      setNewProduct((prev) => ({ ...prev, name: `${val} Rod` }));
+                    }}
+                    allowCustom={true}
+                    required
+                  />
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-muted mb-1">Product Description</label>
                 <input
@@ -235,28 +346,33 @@ export default function InventoryPage() {
                   className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
+
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-muted mb-1">Category</label>
-                  <select
-                    value={newProduct.category}
-                    onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value, unit: e.target.value === "Rod" ? "KG" : "Bag" })}
-                    className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
-                  >
-                    <option value="Rod">Rod</option>
-                    <option value="Cement">Cement</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-muted mb-1">Unit</label>
-                  <input
-                    type="text"
-                    disabled
-                    value={newProduct.unit}
-                    className="w-full bg-background border border-border rounded-lg px-4 py-2 opacity-50 cursor-not-allowed"
-                  />
+                <div className="col-span-2">
+                  {newProduct.category === "Rod" || newProduct.category === "Cement" ? (
+                    <div>
+                      <label className="block text-sm font-medium text-muted mb-1">Unit</label>
+                      <input
+                        type="text"
+                        disabled
+                        value={newProduct.unit}
+                        className="w-full bg-background border border-border rounded-lg px-4 py-2 opacity-50 cursor-not-allowed"
+                      />
+                    </div>
+                  ) : (
+                    <SearchableSelect
+                      label="Unit"
+                      placeholder="Select unit..."
+                      options={COMMON_UNITS}
+                      value={newProduct.unit}
+                      onChange={(val) => setNewProduct({ ...newProduct, unit: val })}
+                      allowCustom={true}
+                      required
+                    />
+                  )}
                 </div>
               </div>
+
               <div className="grid grid-cols-2 gap-4">
                 {newProduct.category === "Rod" ? (
                   <div className="col-span-2 grid grid-cols-2 gap-4">
@@ -345,47 +461,97 @@ export default function InventoryPage() {
             <h3 className="text-xl font-bold mb-6">Edit Product</h3>
             <form onSubmit={handleEditProduct} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-muted mb-1">Brand Name</label>
-                <input
-                  type="text"
+                <SearchableSelect
+                  label="Category"
+                  placeholder="Select category..."
+                  options={CATEGORIES}
+                  value={selectedProduct.category}
+                  onChange={(val) => {
+                    const isRod = val === "Rod";
+                    const isCement = val === "Cement";
+                    const defaultUnit = isRod ? "KG" : isCement ? "Bag" : "Pcs";
+                    setSelectedProduct({
+                      ...selectedProduct,
+                      category: val,
+                      brand: "",
+                      unit: defaultUnit,
+                      name: isRod ? "" : selectedProduct.name,
+                    });
+                    if (!isRod) {
+                      setEditProductSize("");
+                    }
+                  }}
                   required
-                  value={selectedProduct.brand}
-                  onChange={(e) => setSelectedProduct({ ...selectedProduct, brand: e.target.value })}
-                  className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
+
+              <div>
+                <SearchableSelect
+                  label="Brand Name"
+                  placeholder="Select or search brand..."
+                  options={BRANDS_BY_CATEGORY[selectedProduct.category] || []}
+                  value={selectedProduct.brand}
+                  onChange={(val) => setSelectedProduct({ ...selectedProduct, brand: val })}
+                  allowCustom={true}
+                  required
+                />
+              </div>
+
+              {selectedProduct.category === "Rod" && (
+                <div>
+                  <SearchableSelect
+                    label="Size"
+                    placeholder="Select size..."
+                    options={ROD_SIZES}
+                    value={editProductSize}
+                    onChange={(val) => {
+                      setEditProductSize(val);
+                      setSelectedProduct((prev: any) => ({ ...prev, name: `${val} Rod` }));
+                    }}
+                    allowCustom={true}
+                    required
+                  />
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-muted mb-1">Product Description</label>
                 <input
                   type="text"
                   required
+                  placeholder="e.g. 10mm Rod, 50kg Cement"
                   value={selectedProduct.name}
                   onChange={(e) => setSelectedProduct({ ...selectedProduct, name: e.target.value })}
                   className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
+
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-muted mb-1">Category</label>
-                  <select
-                    value={selectedProduct.category}
-                    onChange={(e) => setSelectedProduct({ ...selectedProduct, category: e.target.value, unit: e.target.value === "Rod" ? "KG" : "Bag" })}
-                    className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
-                  >
-                    <option value="Rod">Rod</option>
-                    <option value="Cement">Cement</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-muted mb-1">Unit</label>
-                  <input
-                    type="text"
-                    disabled
-                    value={selectedProduct.unit}
-                    className="w-full bg-background border border-border rounded-lg px-4 py-2 opacity-50 cursor-not-allowed"
-                  />
+                <div className="col-span-2">
+                  {selectedProduct.category === "Rod" || selectedProduct.category === "Cement" ? (
+                    <div>
+                      <label className="block text-sm font-medium text-muted mb-1">Unit</label>
+                      <input
+                        type="text"
+                        disabled
+                        value={selectedProduct.unit}
+                        className="w-full bg-background border border-border rounded-lg px-4 py-2 opacity-50 cursor-not-allowed"
+                      />
+                    </div>
+                  ) : (
+                    <SearchableSelect
+                      label="Unit"
+                      placeholder="Select unit..."
+                      options={COMMON_UNITS}
+                      value={selectedProduct.unit}
+                      onChange={(val) => setSelectedProduct({ ...selectedProduct, unit: val })}
+                      allowCustom={true}
+                      required
+                    />
+                  )}
                 </div>
               </div>
+
               <div className="grid grid-cols-2 gap-4">
                 {selectedProduct.category === "Rod" ? (
                   <div className="col-span-2 grid grid-cols-2 gap-4">
