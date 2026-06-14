@@ -294,9 +294,12 @@ export default function InventoryPage() {
       {/* Add Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-          <div className="bg-card border border-border p-8 rounded-2xl w-full max-w-md">
+          <div className="bg-card border border-border p-4 md:p-8 rounded-2xl w-full max-w-md overflow-y-auto h-[calc(100vh-12rem)]">
             <h3 className="text-xl font-bold mb-6">Add New Product</h3>
-            <form onSubmit={handleAddProduct} className="space-y-4">
+            {/* responsive for mobile device make scroll in y-axis*/}
+            
+
+            <form onSubmit={handleAddProduct} className="space-y-4 ">
               <div>
                 <SearchableSelect
                   label="Category"
@@ -466,6 +469,7 @@ export default function InventoryPage() {
                 </button>
               </div>
             </form>
+           
           </div>
         </div>
       )}
@@ -473,7 +477,7 @@ export default function InventoryPage() {
       {/* Edit Modal */}
       {showEditModal && selectedProduct && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-          <div className="bg-card border border-border p-8 rounded-2xl w-full max-w-md">
+          <div className="bg-card border border-border p-4 md:p-8 rounded-2xl w-full max-w-md overflow-y-auto h-[calc(100vh-12rem)]">
             <h3 className="text-xl font-bold mb-6">Edit Product</h3>
             <form onSubmit={handleEditProduct} className="space-y-4">
               <div>
@@ -629,17 +633,17 @@ export default function InventoryPage() {
                   />
                 </div>
               </div>
-              <div className="flex gap-4 mt-8">
+              <div className="flex gap-4 mt-8 text-sm md:text-base">
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-4 py-2 border border-border rounded-lg font-medium hover:bg-white/5 transition-colors cursor-pointer"
+                  className="flex-1 px-2 py-2 border border-border rounded-lg font-medium hover:bg-white/5 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-white text-black rounded-lg font-bold hover:bg-light-gray transition-colors cursor-pointer"
+                  className="flex-1 px-2 py-2 bg-white text-black rounded-lg font-bold hover:bg-light-gray transition-colors cursor-pointer"
                 >
                   Update Product
                 </button>

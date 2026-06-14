@@ -24,7 +24,7 @@ export default function SalePrintPage({ params }: { params: Promise<{ id: string
   const { customerId: customer, items, totalAmount, paidAmount, balanceDue, date, _id } = sale;
 
   return (
-    <div className="p-8 max-w-4xl mx-auto bg-white text-black min-h-screen">
+    <div className="p-4 md:p-8 max-w-4xl mx-auto bg-white text-black min-h-screen">
       <div className="no-print flex justify-between items-center mb-8 bg-gray-50 p-4 rounded-xl">
         <Link href={`/customers/${customer._id}`} className="flex items-center gap-2 text-gray-600 hover:text-black">
           <ArrowLeft className="w-4 h-4" /> Back to Ledger
@@ -37,10 +37,10 @@ export default function SalePrintPage({ params }: { params: Promise<{ id: string
         </button>
       </div>
 
-      <div className="border-2 border-black p-8 rounded-sm">
-        <div className="flex justify-between items-start mb-12">
+      <div className="border-2 border-black p-4 md:p-8 rounded-sm">
+        <div className="flex justify-between items-start mb-8 md:mb-12">
           <div>
-            <h1 className="text-4xl font-black uppercase tracking-tighter mb-1">SHAHIN TRADERS</h1>
+            <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tighter mb-1">SHAHIN TRADERS</h1>
             <p className="text-sm font-bold">Modern Inventory & Trading Solutions</p>
             <p className="text-xs mt-4 opacity-70">
               Lokhipasha, Narail, Bangladesh<br />
