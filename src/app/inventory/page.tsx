@@ -188,15 +188,15 @@ export default function InventoryPage() {
   );
 
   return (
-    <div className="p-8">
-      <header className="flex justify-between items-center mb-8">
-        <div>
+    <div className="p-4 md:p-8">
+      <header className="flex md:flex-row flex-col gap-3 md:justify-between justify-start md:items-center items-start mb-8">
+        <div className="flex flex-col gap-1 items-start">
           <h2 className="text-2xl font-bold tracking-tight">Inventory</h2>
-          <p className="text-muted">Manage your stock and products.</p>
+          <p className="text-muted  ">Manage your stock and products.</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-light-gray transition-colors"
+          className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-light-gray transition-colors w-full md:w-fit justify-center"
         >
           <Plus className="w-4 h-4" /> Add Product
         </button>

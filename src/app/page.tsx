@@ -54,7 +54,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <header className="mb-10 flex justify-between items-end">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>

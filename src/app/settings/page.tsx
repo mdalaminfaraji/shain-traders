@@ -107,7 +107,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="p-8 max-w-2xl mx-auto space-y-8">
+    <div className="p-4 md:p-8 max-w-2xl mx-auto space-y-8">
       <header className="mb-10">
         <h2 className="text-3xl font-bold tracking-tight">Account Settings</h2>
         <p className="text-muted mt-2">Manage your administrative credentials and security preferences.</p>
@@ -115,7 +115,7 @@ export default function SettingsPage() {
 
       {/* Owner Profile Settings */}
       <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-        <div className="p-6 border-b border-border bg-white/5">
+        <div className="p-4 md:p-6 border-b border-border bg-white/5">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-yellow-500/10 rounded-lg">
               <ShieldCheck className="w-5 h-5 text-yellow-400" />
@@ -129,7 +129,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <form onSubmit={handleUpdate} className="p-8 space-y-8">
+        <form onSubmit={handleUpdate} className="p-4 md:p-8 space-y-8">
           <div className="grid grid-cols-1 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-bold text-muted ml-1 uppercase tracking-widest">
@@ -202,7 +202,7 @@ export default function SettingsPage() {
       {/* Manager Management — Owner Only */}
       {role === "owner" && (
         <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-          <div className="p-6 border-b border-border bg-white/5 flex items-center justify-between">
+          <div className="p-4 md:p-6 border-b border-border bg-white/5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-500/10 rounded-lg">
                 <Users className="w-5 h-5 text-blue-400" />
@@ -225,7 +225,7 @@ export default function SettingsPage() {
 
           {/* Add Manager Form */}
           {showAddManager && (
-            <div className="p-6 border-b border-border bg-blue-500/5">
+            <div className="p-4 md:p-6 border-b border-border bg-blue-500/5">
               <h4 className="font-semibold mb-4 text-sm uppercase tracking-widest text-muted">New Manager Account</h4>
               <form onSubmit={handleAddManager} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -305,7 +305,7 @@ export default function SettingsPage() {
           )}
 
           {/* Manager List */}
-          <div className="p-6">
+          <div className="p-4 md:p-6">
             {managers.length === 0 ? (
               <div className="text-center py-8">
                 <Users className="w-10 h-10 text-muted mx-auto mb-3 opacity-30" />

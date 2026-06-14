@@ -42,16 +42,16 @@ export default function RecordPaymentPage() {
   const selectedCustData = customers.find((c: any) => c._id === payment.customerId) as any;
 
   return (
-    <div className="p-8 max-w-2xl mx-auto">
+    <div className="p-4 md:p-8 max-w-2xl mx-auto">
       <Link href="/customers" className="flex items-center gap-2 text-muted hover:text-foreground mb-8 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to Customers
       </Link>
 
       <header className="mb-10 text-center">
-        <div className="bg-white/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
+        <div className="bg-white/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 md:mb-6">
           <CreditCard className="w-8 h-8 text-accent" />
         </div>
-        <h2 className="text-3xl font-bold tracking-tight">Record Payment</h2>
+        <h2 className="text-xl md:text-3xl font-bold tracking-tight">Record Payment</h2>
         <p className="text-muted mt-2">Log a payment received from a customer to update their balance.</p>
       </header>
 
