@@ -12,24 +12,32 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const navItems = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Inventory", href: "/inventory", icon: Box },
-  { name: "Customers", href: "/customers", icon: Users },
-  { name: "Dues Report", href: "/reports/dues", icon: AlertCircle, color: "text-red-400" },
-  { name: "New Sale", href: "/sales/new", icon: ShoppingCart },
-  { name: "Record Payment", href: "/payments/new", icon: CreditCard },
+const allNavItems = [
+  { name: "Dashboard", href: "/", icon: LayoutDashboard, ownerOnly: false },
+  { name: "Inventory", href: "/inventory", icon: Box, ownerOnly: false },
+  { name: "Customers", href: "/customers", icon: Users, ownerOnly: false },
+  { name: "Dues Report", href: "/reports/dues", icon: AlertCircle, color: "text-red-400", ownerOnly: true },
+  { name: "New Sale", href: "/sales/new", icon: ShoppingCart, ownerOnly: false },
+  { name: "Record Payment", href: "/payments/new", icon: CreditCard, ownerOnly: false },
 ];
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [role, setRole] = useState<"owner" | "manager" | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
-  // Close sidebar on route change (for mobile)
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.user?.role) setRole(data.user.role);
+      });
+  }, []);
 
   const handleLogout = async () => {
     if (confirm("Are you sure you want to log out?")) {
@@ -38,6 +46,8 @@ export default function Sidebar() {
       router.refresh();
     }
   };
+
+  const navItems = allNavItems.filter(item => !item.ownerOnly || role === "owner");
 
   return (
     <>
@@ -66,6 +76,16 @@ export default function Sidebar() {
       >
         <div className="p-6 border-b border-border">
           <h1 className="text-xl font-bold tracking-tight">SHAHIN TRADERS</h1>
+          {role && (
+            <span className={cn(
+              "text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full mt-1 inline-block",
+              role === "owner"
+                ? "bg-yellow-500/15 text-yellow-400"
+                : "bg-blue-500/15 text-blue-400"
+            )}>
+              {role === "owner" ? "👑 Owner" : "🧑‍💼 Manager"}
+            </span>
+          )}
         </div>
         
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">

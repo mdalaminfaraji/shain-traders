@@ -117,7 +117,7 @@ export default function NewSalePage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <header className="mb-8">
         <h2 className="text-2xl font-bold tracking-tight">New Sale</h2>
         <p className="text-muted">Create a new invoice for a customer.</p>
@@ -126,7 +126,7 @@ export default function NewSalePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left: Product Selection */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-card border border-border rounded-xl p-6 flex flex-col h-[500px]">
+          <div className="bg-card border border-border rounded-xl p-4 md:p-6 flex flex-col h-[500px]">
             <div className="flex flex-col md:flex-row gap-4 mb-6 items-start md:items-center justify-between">
               <h3 className="font-bold flex items-center gap-2 whitespace-nowrap">
                 <Search className="w-4 h-4 text-accent" /> Select Products
@@ -166,7 +166,7 @@ export default function NewSalePage() {
                     <button
                       key={product._id}
                       onClick={() => addToCart(product)}
-                      className="flex flex-col text-left p-4 border border-border rounded-xl hover:border-accent hover:bg-white/5 transition-all group relative overflow-hidden"
+                      className="flex flex-col text-left p-4 md:p-6 border border-border rounded-xl hover:border-accent hover:bg-white/5 transition-all group relative overflow-hidden"
                     >
                       <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Plus className="w-4 h-4 text-accent" />
@@ -186,7 +186,7 @@ export default function NewSalePage() {
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-xl p-6 flex flex-col h-[400px]">
+          <div className="bg-card border border-border rounded-xl p-4 md:p-6 flex flex-col h-[400px]">
             <h3 className="font-bold mb-4 flex items-center gap-2">
               <ShoppingCart className="w-4 h-4 text-accent" /> Cart Items
               <span className="ml-auto text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-full uppercase tracking-tighter">
@@ -219,7 +219,7 @@ export default function NewSalePage() {
                           <p className="text-[10px] text-muted uppercase tracking-tighter">{item.brand} • {item.category}</p>
                         </td>
                         <td className="py-4">
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col gap-1 mr-2 md:mr-0">
                             <div className="flex items-center gap-1">
                               <span className="text-muted text-sm">৳</span>
                               <input
@@ -263,12 +263,12 @@ export default function NewSalePage() {
                               className="w-20 bg-background border border-border rounded-lg px-2 py-1.5 text-sm font-bold focus:outline-none focus:ring-1 focus:ring-accent"
                             />
                             {item.stock !== undefined && (
-                              <p className="text-[9px] text-muted font-medium">Max: {item.stock}</p>
+                              <p className="text-[9px] text-muted font-medium hidden md:block">Max: {item.stock}</p>
                             )}
                           </div>
                         </td>
                         <td className="py-4 text-right">
-                          <p className="font-bold text-accent">৳ {item.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                          <p className="font-bold text-accent w-20">৳ {item.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         </td>
                         <td className="py-4 text-right">
                           <button 
@@ -289,7 +289,7 @@ export default function NewSalePage() {
 
         {/* Right: Checkout */}
         <div className="space-y-6">
-          <div className="bg-card border border-border rounded-xl p-6 sticky top-8">
+          <div className="bg-card border border-border rounded-xl p-4 md:p-6 sticky top-8">
             <h3 className="font-bold mb-6 flex items-center gap-2">
               <ShoppingCart className="w-4 h-4 text-accent" /> Order Summary
             </h3>

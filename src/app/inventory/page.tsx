@@ -73,6 +73,7 @@ export default function InventoryPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [role, setRole] = useState<"owner" | "manager" | null>(null);
   const [newProduct, setNewProduct] = useState({
     name: "",
     brand: "",
@@ -102,6 +103,9 @@ export default function InventoryPage() {
 
   useEffect(() => {
     fetchProducts();
+    fetch("/api/auth/me")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.user?.role) setRole(d.user.role); });
   }, []);
 
   async function fetchProducts() {
@@ -258,13 +262,15 @@ export default function InventoryPage() {
                       >
                         <MoreHorizontal className="w-4 h-4" />
                       </button>
-                      <button 
-                        onClick={() => handleDeleteProduct(product._id)}
-                        className="p-2 hover:bg-red-500/10 rounded-lg text-muted hover:text-red-400 transition-colors"
-                        title="Delete"
-                      >
-                        <Plus className="w-4 h-4 rotate-45" />
-                      </button>
+                      {role === "owner" && (
+                        <button 
+                          onClick={() => handleDeleteProduct(product._id)}
+                          className="p-2 hover:bg-red-500/10 rounded-lg text-muted hover:text-red-400 transition-colors"
+                          title="Delete"
+                        >
+                          <Plus className="w-4 h-4 rotate-45" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

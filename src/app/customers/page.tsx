@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Users, Search, ChevronRight, Phone, MapPin, MoreHorizontal } from "lucide-react";
+import { Plus, Users, Search, Phone, MapPin, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 
 export default function CustomersPage() {
@@ -11,6 +12,7 @@ export default function CustomersPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+  const [role, setRole] = useState<"owner" | "manager" | null>(null);
   const [newCustomer, setNewCustomer] = useState({
     name: "",
     phone: "",
@@ -20,6 +22,9 @@ export default function CustomersPage() {
 
   useEffect(() => {
     fetchCustomers();
+    fetch("/api/auth/me")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.user?.role) setRole(d.user.role); });
   }, []);
 
   async function fetchCustomers() {
@@ -142,13 +147,15 @@ export default function CustomersPage() {
                     >
                       <MoreHorizontal className="w-3.5 h-3.5" />
                     </button>
-                    <button
-                      onClick={(e) => handleDeleteCustomer(e, customer._id)}
-                      className="p-1.5 hover:bg-red-500/10 rounded-md text-muted hover:text-red-400 transition-colors"
-                      title="Delete"
-                    >
-                      <Plus className="w-3.5 h-3.5 rotate-45" />
-                    </button>
+                    {role === "owner" && (
+                      <button
+                        onClick={(e) => handleDeleteCustomer(e, customer._id)}
+                        className="p-1.5 hover:bg-red-500/10 rounded-md text-muted hover:text-red-400 transition-colors"
+                        title="Delete"
+                      >
+                        <Plus className="w-3.5 h-3.5 rotate-45" />
+                      </button>
+                    )}
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-muted font-medium mb-1 uppercase tracking-wider">Current Balance</p>
