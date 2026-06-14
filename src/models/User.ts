@@ -1,4 +1,4 @@
-import mongoose, { Schema, model, models } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 const UserSchema = new Schema({
   email: {
@@ -9,6 +9,15 @@ const UserSchema = new Schema({
   password: {
     type: String,
     required: true,
+  },
+  role: {
+    type: String,
+    enum: ["owner", "manager"],
+    default: "manager",
+  },
+  name: {
+    type: String,
+    default: "",
   },
 }, { timestamps: true });
 
@@ -21,8 +30,10 @@ export async function ensureDefaultUser() {
   if (count === 0) {
     await User.create({
       email: "alaminice1617@gmail.com",
-      password: "425379", // In a real app, hash this!
+      password: "425379",
+      role: "owner",
+      name: "Owner",
     });
-    console.log("Default user created");
+    console.log("Default owner user created");
   }
 }

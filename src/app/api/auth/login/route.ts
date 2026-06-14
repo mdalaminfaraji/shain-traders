@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import User, { ensureDefaultUser } from "@/models/User";
@@ -19,7 +20,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    const token = await new SignJWT({ userId: user._id, email: user.email })
+    const token = await new SignJWT({
+      userId: user._id.toString(),
+      email: user.email,
+      role: user.role ?? "manager",
+    })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime("24h")
@@ -34,7 +39,7 @@ export async function POST(request: Request) {
       path: "/",
     });
 
-    return NextResponse.json({ success: true, user: { email: user.email } });
+    return NextResponse.json({ success: true, user: { email: user.email, role: user.role } });
   } catch (error: any) {
     console.error("Login error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

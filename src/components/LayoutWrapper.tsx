@@ -2,7 +2,8 @@
 
 import { usePathname } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
-
+import { Bounce, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isLoginPage = pathname === "/login";
@@ -25,6 +26,19 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         
         <div className={isLoginPage ? "" : "max-w-[1600px] mx-auto"}>
           {children}
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+            transition={Bounce}
+          />
         </div>
       </main>
     </body>

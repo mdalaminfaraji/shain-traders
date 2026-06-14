@@ -131,7 +131,7 @@ export default function SearchableSelect({
                 className="w-full text-left px-3 py-2 rounded-md text-sm border border-dashed border-border text-accent hover:bg-accent hover:text-white transition-colors flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
-                <span>Add custom: "{search.trim()}"</span>
+                <span>Add custom: &quot;{search.trim()}&quot;</span>
               </button>
             )}
           </div>

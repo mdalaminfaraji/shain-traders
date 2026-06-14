@@ -2,8 +2,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, MoreHorizontal, Search } from "lucide-react";
+import { Plus, Search, Trash2, PencilIcon } from "lucide-react";
 import SearchableSelect from "../../components/SearchableSelect";
+import CommonConformationModal from "./_components/CommonConformationModal";
+import { toast } from "react-toastify";
 
 const CATEGORIES = [
   { value: "Rod", label: "রড (Rod)" },
@@ -73,6 +75,8 @@ export default function InventoryPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [role, setRole] = useState<"owner" | "manager" | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [newProduct, setNewProduct] = useState({
     name: "",
     brand: "",
@@ -102,6 +106,9 @@ export default function InventoryPage() {
 
   useEffect(() => {
     fetchProducts();
+    fetch("/api/auth/me")
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.user?.role) setRole(d.user.role); });
   }, []);
 
   async function fetchProducts() {
@@ -131,6 +138,7 @@ export default function InventoryPage() {
       setNewProductSize("");
       setTonInput("");
       setKgInput("");
+      toast.success("Product added successfully");
     }
   }
 
@@ -149,6 +157,7 @@ export default function InventoryPage() {
       setEditProductSize("");
       setTonInput("");
       setKgInput("");
+      toast.success("Product updated successfully");
     }
   }
 
@@ -167,13 +176,15 @@ export default function InventoryPage() {
   };
 
   async function handleDeleteProduct(id: string) {
-    if (!confirm("Are you sure you want to delete this product?")) return;
+
+    
 
     const res = await fetch(`/api/products/${id}`, {
       method: "DELETE",
     });
     if (res.ok) {
       fetchProducts();
+      toast.success("Product deleted successfully");
     }
   }
 
@@ -184,15 +195,15 @@ export default function InventoryPage() {
   );
 
   return (
-    <div className="p-8">
-      <header className="flex justify-between items-center mb-8">
-        <div>
+    <div className="p-4 md:p-8">
+      <header className="flex md:flex-row flex-col gap-3 md:justify-between justify-start md:items-center items-start mb-8">
+        <div className="flex flex-col gap-1 items-start">
           <h2 className="text-2xl font-bold tracking-tight">Inventory</h2>
-          <p className="text-muted">Manage your stock and products.</p>
+          <p className="text-muted  ">Manage your stock and products.</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-light-gray transition-colors"
+          className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-light-gray transition-colors w-full md:w-fit justify-center cursor-pointer"
         >
           <Plus className="w-4 h-4" /> Add Product
         </button>
@@ -253,18 +264,23 @@ export default function InventoryPage() {
                     <div className="flex justify-end gap-2">
                       <button 
                         onClick={() => handleOpenEditModal(product)}
-                        className="p-2 hover:bg-white/10 rounded-lg text-muted hover:text-foreground transition-colors"
+                        className="p-2 hover:bg-white/10 rounded-lg text-muted hover:text-foreground transition-colors cursor-pointer"
                         title="Edit"
                       >
-                        <MoreHorizontal className="w-4 h-4" />
+                        <PencilIcon className="w-4 h-4" />
                       </button>
-                      <button 
-                        onClick={() => handleDeleteProduct(product._id)}
-                        className="p-2 hover:bg-red-500/10 rounded-lg text-muted hover:text-red-400 transition-colors"
-                        title="Delete"
-                      >
-                        <Plus className="w-4 h-4 rotate-45" />
-                      </button>
+                      {role === "owner" && (
+                        <button 
+                          onClick={() => {
+                            setSelectedProduct(product);
+                            setShowDeleteModal(true);
+                          }}
+                          className="p-2 hover:bg-red-500/10 rounded-lg text-muted hover:text-red-400 transition-colors cursor-pointer"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4 rotate-45" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -438,13 +454,13 @@ export default function InventoryPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 px-4 py-2 border border-border rounded-lg font-medium hover:bg-white/5 transition-colors"
+                  className="flex-1 px-4 py-2 border border-border rounded-lg font-medium hover:bg-white/5 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-white text-black rounded-lg font-bold hover:bg-light-gray transition-colors"
+                  className="flex-1 px-4 py-2 bg-white text-black rounded-lg font-bold hover:bg-light-gray transition-colors cursor-pointer"
                 >
                   Save Product
                 </button>
@@ -617,13 +633,13 @@ export default function InventoryPage() {
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-4 py-2 border border-border rounded-lg font-medium hover:bg-white/5 transition-colors"
+                  className="flex-1 px-4 py-2 border border-border rounded-lg font-medium hover:bg-white/5 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-white text-black rounded-lg font-bold hover:bg-light-gray transition-colors"
+                  className="flex-1 px-4 py-2 bg-white text-black rounded-lg font-bold hover:bg-light-gray transition-colors cursor-pointer"
                 >
                   Update Product
                 </button>
@@ -632,6 +648,15 @@ export default function InventoryPage() {
           </div>
         </div>
       )}
+
+      <CommonConformationModal
+        showModal={showDeleteModal}
+        setShowModal={setShowDeleteModal}
+        title="Delete Product"
+        message="Are you sure you want to delete this product?"
+        onConfirm={() => handleDeleteProduct(selectedProduct._id)}
+      />
     </div>
   );
 }
+

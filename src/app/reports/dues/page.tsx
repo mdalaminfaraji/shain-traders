@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -27,7 +28,7 @@ export default function DuesReportPage() {
   }, []);
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <header className="flex justify-between items-center mb-8 no-print">
         <Link href="/" className="flex items-center gap-2 text-muted hover:text-foreground transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Dashboard
@@ -41,7 +42,7 @@ export default function DuesReportPage() {
       </header>
 
       <div className="mb-10">
-        <h2 className="text-3xl font-bold tracking-tight">Outstanding Dues Report</h2>
+        <h2 className="text-xl md:text-3xl font-bold tracking-tight">Outstanding Dues Report</h2>
         <p className="text-muted mt-2">Comprehensive list of all customers with pending balances.</p>
       </div>
 
