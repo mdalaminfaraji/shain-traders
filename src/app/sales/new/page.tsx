@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2, Search, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function NewSalePage() {
   const router = useRouter();
@@ -112,6 +113,7 @@ export default function NewSalePage() {
     });
 
     if (res.ok) {
+      toast.success("Sale recorded successfully");
       router.push("/customers/" + selectedCustomer);
     }
   }
@@ -166,7 +168,7 @@ export default function NewSalePage() {
                     <button
                       key={product._id}
                       onClick={() => addToCart(product)}
-                      className="flex flex-col text-left p-4 md:p-6 border border-border rounded-xl hover:border-accent hover:bg-white/5 transition-all group relative overflow-hidden"
+                      className="flex flex-col text-left p-4 md:p-6 border border-border rounded-xl hover:border-accent hover:bg-white/5 transition-all group relative overflow-hidden cursor-pointer"
                     >
                       <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Plus className="w-4 h-4 text-accent" />
@@ -238,11 +240,11 @@ export default function NewSalePage() {
                                 className="w-24 bg-background border border-border rounded-lg px-2 py-1 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-accent"
                               />
                             </div>
-                            {/* {item.laborCost > 0 && <p className="text-[9px] text-emerald-400 font-medium">+৳ {item.laborCost}/kg labor</p>} */}
+                            {item.laborCost > 0 && <p className="text-[9px] text-emerald-400 font-medium">+৳ {item.laborCost}/kg labor</p>}
                           </div>
                         </td>
                         <td className="py-4">
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col gap-1 mr-2 md:mr-0">
                             <input
                               type="number"
                               min="0.1"
@@ -263,7 +265,7 @@ export default function NewSalePage() {
                               className="w-20 bg-background border border-border rounded-lg px-2 py-1.5 text-sm font-bold focus:outline-none focus:ring-1 focus:ring-accent"
                             />
                             {item.stock !== undefined && (
-                              <p className="text-[9px] text-muted font-medium hidden md:block">Max: {item.stock}</p>
+                              <p className="text-[9px] text-muted font-medium">Max: {item.stock}</p>
                             )}
                           </div>
                         </td>

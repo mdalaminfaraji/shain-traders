@@ -6,6 +6,7 @@ import { CreditCard, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import SearchableSelect from "../../../components/SearchableSelect";
+import { toast } from "react-toastify";
 
 export default function RecordPaymentPage() {
   const router = useRouter();
@@ -34,6 +35,7 @@ export default function RecordPaymentPage() {
 
     if (res.ok) {
       router.push("/customers/" + payment.customerId);
+      toast.success("Payment recorded successfully");
     } else {
       setLoading(false);
     }
@@ -130,7 +132,7 @@ export default function RecordPaymentPage() {
           <button
             type="submit"
             disabled={loading || !payment.customerId || payment.amount <= 0}
-            className="w-full bg-white text-black py-4 rounded-xl font-bold text-lg hover:bg-light-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+            className="w-full bg-white text-black py-4 rounded-xl font-bold text-lg hover:bg-light-gray transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4 cursor-pointer"
           >
             {loading ? "Processing..." : "Confirm Payment"}
           </button>

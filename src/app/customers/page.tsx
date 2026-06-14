@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Users, Search, Phone, MapPin, PencilIcon, Trash2, X } from "lucide-react";
 import Link from "next/link";
+import { toast } from "react-toastify";
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -52,6 +53,7 @@ export default function CustomersPage() {
       setShowAddModal(false);
       fetchCustomers();
       setNewCustomer({ name: "", phone: "", address: ""});
+      toast.success("Customer added successfully");
     }
   }
 
@@ -67,19 +69,19 @@ export default function CustomersPage() {
     if (res.ok) {
       setShowEditModal(false);
       fetchCustomers();
+      toast.success("Customer updated successfully");
     }
   }
 
   async function handleDeleteCustomer(e: React.MouseEvent, id: string) {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm("Are you sure you want to delete this customer? All their transaction history will be lost.")) return;
-
     const res = await fetch(`/api/customers/${id}`, {
       method: "DELETE",
     });
     if (res.ok) {
       fetchCustomers();
+      toast.success("Customer deleted successfully");
     }
   }
 
