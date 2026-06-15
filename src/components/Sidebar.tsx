@@ -74,7 +74,7 @@ export default function Sidebar() {
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="p-6 border-b border-border">
+        <div className="p-6 border-b border-border mt-12 md:mt-0">
           <h1 className="text-xl font-bold tracking-tight">SHAHIN TRADERS</h1>
           {role && (
             <span className={cn(

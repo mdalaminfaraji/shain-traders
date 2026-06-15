@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Search, Trash2, PencilIcon } from "lucide-react";
+import { Plus, Search, Trash2, PencilIcon, PackagePlus } from "lucide-react";
 import SearchableSelect from "../../components/SearchableSelect";
 import CommonConformationModal from "./_components/CommonConformationModal";
 import { toast } from "react-toastify";
@@ -74,6 +74,7 @@ export default function InventoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showUpdateStockModal, setShowUpdateStockModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [role, setRole] = useState<"owner" | "manager" | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -91,6 +92,11 @@ export default function InventoryPage() {
 
   const [tonInput, setTonInput] = useState("");
   const [kgInput, setKgInput] = useState("");
+
+  const [updateStockAmount, setUpdateStockAmount] = useState<number | "">("");
+  const [updateTonInput, setUpdateTonInput] = useState("");
+  const [updateKgInput, setUpdateKgInput] = useState("");
+  const [updatePrice, setUpdatePrice] = useState<number | "">("");
 
   const formatStock = (stock: number, category: string, unit: string) => {
     if (category === "Rod") {
@@ -175,6 +181,46 @@ export default function InventoryPage() {
     setShowEditModal(true);
   };
 
+  async function handleQuickUpdate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedProduct) return;
+
+    let addedStock = 0;
+    if (selectedProduct.category === "Rod") {
+      const tons = parseFloat(updateTonInput) || 0;
+      const kgs = parseFloat(updateKgInput) || 0;
+      addedStock = Math.round(tons * 1000 + kgs);
+    } else {
+      addedStock = Number(updateStockAmount) || 0;
+    }
+
+    const newStock = selectedProduct.stock + addedStock;
+    const newPrice = Number(updatePrice) || selectedProduct.price;
+
+    const res = await fetch(`/api/products/${selectedProduct._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...selectedProduct, stock: newStock, price: newPrice }),
+    });
+    if (res.ok) {
+      setShowUpdateStockModal(false);
+      fetchProducts();
+      setUpdateStockAmount("");
+      setUpdateTonInput("");
+      setUpdateKgInput("");
+      toast.success("Stock and Price updated successfully");
+    }
+  }
+
+  const handleOpenQuickUpdate = (product: any) => {
+    setSelectedProduct(product);
+    setUpdatePrice(product.price);
+    setUpdateStockAmount("");
+    setUpdateTonInput("");
+    setUpdateKgInput("");
+    setShowUpdateStockModal(true);
+  };
+
   async function handleDeleteProduct(id: string) {
 
     
@@ -253,15 +299,22 @@ export default function InventoryPage() {
                       {product.category}
                     </span>
                   </td>
-                  <td className="p-4">
+                  <td className="p-4 whitespace-nowrap">
                     <span className={product.stock < 10 ? "text-red-400 font-medium" : ""}>
                       {formatStock(product.stock, product.category, product.unit)}
                     </span>
                   </td>
-                  <td className="p-4">৳ {product.price.toLocaleString()}</td>
-                  <td className="p-4 font-bold text-accent">৳ {(product.stock * product.price).toLocaleString()}</td>
+                  <td className="p-4 whitespace-nowrap">৳ {product.price.toLocaleString()}</td>
+                  <td className="p-4 font-bold text-accent whitespace-nowrap">৳ {(product.stock * product.price).toLocaleString()}</td>
                   <td className="p-4 text-right">
                     <div className="flex justify-end gap-2">
+                      <button 
+                        onClick={() => handleOpenQuickUpdate(product)}
+                        className="p-2 hover:bg-white/10 rounded-lg text-muted hover:text-green-400 transition-colors cursor-pointer"
+                        title="Quick Update Stock & Price"
+                      >
+                        <PackagePlus className="w-4 h-4" />
+                      </button>
                       <button 
                         onClick={() => handleOpenEditModal(product)}
                         className="p-2 hover:bg-white/10 rounded-lg text-muted hover:text-foreground transition-colors cursor-pointer"
@@ -646,6 +699,86 @@ export default function InventoryPage() {
                   className="flex-1 px-2 py-2 bg-white text-black rounded-lg font-bold hover:bg-light-gray transition-colors cursor-pointer"
                 >
                   Update Product
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Update Stock/Price Modal */}
+      {showUpdateStockModal && selectedProduct && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+          <div className="bg-card border border-border p-4 md:p-8 rounded-2xl w-full max-w-md overflow-y-auto max-h-[calc(100vh-4rem)]">
+            <h3 className="text-xl font-bold mb-2">Quick Update</h3>
+            <p className="text-muted text-sm mb-6">
+              Update price and add stock for <span className="text-foreground font-semibold">{selectedProduct.name}</span>
+            </p>
+            <form onSubmit={handleQuickUpdate} className="space-y-4">
+              <div className="space-y-4">
+                {selectedProduct.category === "Rod" ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-muted mb-1">Add Stock (Tons)</label>
+                      <input
+                        type="number"
+                        step="any"
+                        placeholder="e.g. 1.5"
+                        value={updateTonInput}
+                        onChange={(e) => setUpdateTonInput(e.target.value)}
+                        className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-muted mb-1">Add Stock (KG)</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 200"
+                        value={updateKgInput}
+                        onChange={(e) => setUpdateKgInput(e.target.value)}
+                        className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-muted mb-1">Add Stock Amount</label>
+                    <input
+                      type="number"
+                      value={updateStockAmount}
+                      onChange={(e) => setUpdateStockAmount(e.target.value === "" ? "" : Number(e.target.value))}
+                      placeholder="Amount to add"
+                      className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                  </div>
+                )}
+                <div className="p-3 bg-white/5 rounded-lg border border-border">
+                  <p className="text-sm text-muted">Current Stock: <span className="font-medium text-foreground">{formatStock(selectedProduct.stock, selectedProduct.category, selectedProduct.unit)}</span></p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-muted mb-1">Update Unit Price (৳)</label>
+                  <input
+                    type="number"
+                    required
+                    value={updatePrice}
+                    onChange={(e) => setUpdatePrice(e.target.value === "" ? "" : Number(e.target.value))}
+                    className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-4 mt-8 text-sm md:text-base">
+                <button
+                  type="button"
+                  onClick={() => setShowUpdateStockModal(false)}
+                  className="flex-1 px-4 py-2 border border-border rounded-lg font-medium hover:bg-white/5 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-white text-black rounded-lg font-bold hover:bg-light-gray transition-colors cursor-pointer"
+                >
+                  Save Updates
                 </button>
               </div>
             </form>
