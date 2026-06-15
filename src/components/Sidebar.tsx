@@ -7,6 +7,7 @@ import { Menu, X, LayoutDashboard, Box, Users, AlertCircle, ShoppingCart, Credit
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useRouter } from "next/navigation";
+import CommonConformationModal from "@/app/inventory/_components/CommonConformationModal";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -24,6 +25,7 @@ const allNavItems = [
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [role, setRole] = useState<"owner" | "manager" | null>(null);
+  const [logOutModal, setLogOutModal] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -40,11 +42,11 @@ export default function Sidebar() {
   }, []);
 
   const handleLogout = async () => {
-    if (confirm("Are you sure you want to log out?")) {
+   
       await fetch("/api/auth/logout", { method: "POST" });
       router.push("/login");
       router.refresh();
-    }
+ 
   };
 
   const navItems = allNavItems.filter(item => !item.ownerOnly || role === "owner");
@@ -125,7 +127,7 @@ export default function Sidebar() {
           </Link>
           
           <button
-            onClick={handleLogout}
+            onClick={()=>setLogOutModal(true)}
             className="w-full flex items-center gap-3 p-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-all group"
           >
             <LogOut className="w-5 h-5" />
@@ -138,6 +140,14 @@ export default function Sidebar() {
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
         </div>
       </aside>
+            {logOutModal && <CommonConformationModal
+              showModal={logOutModal}
+              setShowModal={setLogOutModal}
+              title="Logout"
+              message="Are you sure you want to log out?"
+              onConfirm={handleLogout}
+            />}
+            
     </>
   );
 }
