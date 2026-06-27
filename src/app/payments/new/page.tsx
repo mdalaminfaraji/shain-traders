@@ -89,7 +89,7 @@ export default function RecordPaymentPage() {
                 type="number"
                 required
                 min="1"
-                value={payment.amount}
+                value={payment.amount>0?payment.amount:undefined}
                 onChange={(e) => setPayment({ ...payment, amount: Number(e.target.value) })}
                 className="w-full bg-background border border-border rounded-xl px-4 py-3 text-emerald-400 focus:outline-none focus:ring-1 focus:ring-accent"
               />

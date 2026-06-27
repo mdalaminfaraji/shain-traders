@@ -387,8 +387,8 @@ export default function NewSalePage() {
                 <label className="block text-sm font-medium text-muted mb-1">Paid Amount (৳)</label>
                 <input
                   type="number"
-                  value={paidAmount}
-                  onChange={(e) => setPaidAmount(Number(e.target.value))}
+                  value={paidAmount>0?paidAmount:undefined}
+                  onChange={(e) => setPaidAmount(Number(e.target.value)>totalAmount?totalAmount:Number(e.target.value))}
                   className="w-full bg-background border border-border rounded-lg px-4 py-2 text-lg font-bold text-accent focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>

@@ -500,7 +500,7 @@ export default function InventoryPage() {
                   <input
                     type="number"
                     required
-                    value={newProduct.price}
+                    value={newProduct.price>0?newProduct.price:undefined}
                     onChange={(e) => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
                     className="w-full bg-background border border-border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-accent"
                   />
